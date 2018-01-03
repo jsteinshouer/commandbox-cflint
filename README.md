@@ -36,8 +36,8 @@ box cflint models/**.cfc --html
 
 #### Example Console Output
 
-![Example Console Output](examples/cflint-console-example.png)
+![Example Console Output](https://raw.githubusercontent.com/jsteinshouer/commandbox-cflint/master/examples//cflint-console-example.png)
 
 #### Example HTML Report
 
-![Example HTML Report](examples/cflint-html-example.png)
+![Example HTML Report](https://raw.githubusercontent.com/jsteinshouer/commandbox-cflint/master/examples//cflint-html-example.png)
