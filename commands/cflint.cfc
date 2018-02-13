@@ -21,9 +21,9 @@ component {
 	* Constructor
 	*/
 	function init() {
-		variables.workDirectory = fileSystemUtil.resolvePath( "." );
-		variables.rootPath = REReplaceNoCase( getDirectoryFromPath( getCurrentTemplatePath() ), "commands(\\|/)", "" );
-		variables.cflintJAR = rootPath & "lib/cflint-1.2.3-all/cflint-1.2.3-all.jar";
+		variables.workDirectory  = fileSystemUtil.resolvePath( "." );
+		variables.rootPath       = REReplaceNoCase( getDirectoryFromPath( getCurrentTemplatePath() ), "commands(\\|/)", "" );
+		variables.cflintJAR      = rootPath & "lib/cflint-1.3.0-all/cflint-1.3.0-all.jar";
 		variables.reportTemplate = "/commandbox-cflint/resources/report.cfm" ;
 		variables.htmlResultFile = workDirectory & "cflint-results.html";
 
