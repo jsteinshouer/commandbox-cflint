@@ -1,8 +1,8 @@
 {
     "name":"commandbox-cflint",
-    "version":"1.0.0",
+    "version":"1.0.1",
     "author":"Jason Steinshouer",
-    "location":"jsteinshouer/commandbox-cflint#v1.0.0",
+    "location":"jsteinshouer/commandbox-cflint#v1.0.1",
     "homepage":"https://github.com/jsteinshouer/commandbox-cflint",
     "documentation":"https://github.com/jsteinshouer/commandbox-cflint",
     "repository":{
