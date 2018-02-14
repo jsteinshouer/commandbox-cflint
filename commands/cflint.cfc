@@ -15,54 +15,127 @@
 * cflint models/**.cfc --html
 * {code}
 */
-component {
+component{
+
+	// What cflint version we are using.
+	variables.CFLINT_VERSION = "1.3.0";
 
 	/* 
 	* Constructor
 	*/
-	function init() {
+	function init(){
 		variables.workDirectory  = fileSystemUtil.resolvePath( "." );
 		variables.rootPath       = REReplaceNoCase( getDirectoryFromPath( getCurrentTemplatePath() ), "commands(\\|/)", "" );
-		variables.cflintJAR      = rootPath & "lib/cflint-1.3.0-all/cflint-1.3.0-all.jar";
+		variables.cflintJAR      = rootPath & "lib/cflint-#variables.CFLINT_VERSION#-all/cflint-#variables.CFLINT_VERSION#-all.jar";
 		variables.reportTemplate = "/commandbox-cflint/resources/report.cfm" ;
-		variables.htmlResultFile = workDirectory & "cflint-results.html";
 
 		return this;
 	}
 
-	/* 
-	 * Default target
+	/** 
+	 * Run the lint command
+	 * 
+	 * @pattern The globbing pattern to lint
+	 * @html Output the report as an HTML file, defaults to `cflint-results.html` unless you use the `fileName` argument
+	 * @text Output the report as a text file, defaults to `cflint-results.txt` unless you use the `fileName` argument
+	 * @json Output the report as raw JSON to a file, defaults to `cflint-results.json` unelss you use the `fileName` argument.
+	 * @fileName The name of the file used for output
+	 * @suppress If passed and using output files, it will suppress the console report. Defaults to false
+	 * @exitOnError By default, if an error is detected on the linting process we will exit of the shell with an error exit code.
 	 */
-	public function run( pattern = "**.cfc|**.cfm", html = false ) {
+	public function run(
+		pattern = "**.cfc|**.cfm", 
+		boolean html = false,
+		boolean text = false,
+		boolean json = false,
+		fileName = "cflint-results",
+		boolean suppress = false,
+		boolean exitOnError = true
+	) {
 		var fullFilePaths = globber( workDirectory & arguments.pattern ).matches();
-		
+
 		// Remove path from files to shorten the command string. Limit is 8191 characters on windows
-		var files = fullFilePaths.map( function(item) {
+		var files = fullFilePaths.map( function( item ){
 			return replace( item, workDirectory, "" );
-		});
+		} );
 
 		/* Run the report */
-		runReport( files, arguments.html );
-	
-	}
-
-	private void function runReport( required files , html = false ) {
-		var reportData = getReportData( files );
-
-		if ( html ) {
-			htmlReport( reportData );
-			print.greenLine( "Report generated at #htmlResultFile#" );
-		}
-		else {
-			displayReport( reportData );
-		}
+		var reportData = runReport( 
+			files, 
+			arguments.html, 
+			arguments.text, 
+			arguments.json,
+			arguments.fileName,
+			arguments.suppress 
+		);
 
 		/* Make the task fail if an error exists */
-		if ( reportData.errorExists ) {
+		if ( reportData.errorExists && arguments.exitOnError ) {
 			/* Flush any output to the console */
 			print.line().toConsole();
 			error( "Please fix errors found by CFLint!" );
 		}
+	}
+
+	/****************************************** PRIVATE ************************************/
+
+	/**
+	 * Run the report for the following files and output conditions
+	 * 
+	 * @files The array of files to lint
+	 * @html Output the report as an HTML file, defaults to `cflint-results.html` unless you use the `fileName` argument
+	 * @text Output the report as a text file, defaults to `cflint-results.txt` unless you use the `fileName` argument
+	 * @json Output the report as raw JSON to a file, defaults to `cflint-results.json` unelss you use the `fileName` argument.
+	 * @fileName The name of the file used for output
+	 * @suppress If passed and using output files, it will suppress the console report. Defaults to false
+	 *
+	 * @return The cflint reportdata struct
+	 */
+	private function runReport( 
+		required files, 
+		boolean html = false,
+		boolean text = false,
+		boolean json = false,
+		fileName,
+		boolean suppress=false
+	){
+		// Run the linter
+		var reportData = getReportData( arguments.files );
+		var outputFile = variables.workDirectory & "/" & arguments.fileName;
+
+		// Run Display Procedures
+		displayReport( reportData );
+		
+		// Store console output from print buffer
+		var textReport = print.getResult();
+
+		// Supress Console Output by clearing the output buffer
+		if( arguments.suppress ){
+			print.clear();
+		}
+
+		// Text Output
+		if( arguments.text ){
+			fileWrite( outputFile & ".txt", textReport );
+			print.printLine()
+				.greenBoldLine( "==> Report generated at #outputFile#.txt" );
+		}
+		
+		// HTML Output
+		if ( arguments.html ) {
+			htmlReport( reportData, outputFile & ".html" );
+			print.printLine()
+				.greenBoldLine( "==> Report generated at #outputFile#.html" );
+		}
+
+		// JSON Output
+		if( arguments.json ){
+			fileWrite( outputFile & ".json", serializeJSON( reportData ) );
+			print.printLine()
+				.greenBoldLine( "==> Report generated at #outputFile#.json" );
+		}
+
+		return reportData;
 	}
 
 	/* 
@@ -71,9 +144,9 @@ component {
 	private struct function getReportData( required array files ) {
 
 		var data = {
-			"version" = "1.2.3",
-			"timestamp" = now(),
-			"files" = {},
+			"version"     = variables.CFLINT_VERSION,
+			"timestamp"   = now(),
+			"files"       = {},
 			"errorExists" = false
 		};
 
@@ -141,20 +214,24 @@ component {
 		return deserializeJSON( output );
 	}
 
-	/* 
+	/**
 	 * Generate an html report
+	 *
+	 * @data The data results
+	 * @outputFile The output file location
 	 */
-	private string function htmlReport( required data ) {
-		var content = "";
+	private string function htmlReport( required data, required outputFile ) {
+		var content 	= "";
+
 		savecontent variable="content" {
 			include reportTemplate;
 		}
 
-		if ( fileExists( htmlResultFile ) ) {
-			fileDelete( htmlResultFile );
+		if ( fileExists( arguments.outputFile ) ) {
+			fileDelete( arguments.outputFile );
 		}
 
-		fileWrite( htmlResultFile, content );
+		fileWrite( arguments.outputFile, content );
 	}
 
 	
@@ -169,47 +246,45 @@ component {
 
 		for ( var file in data.files ) {
 
-			print.greenLine( chr(9) & file & "   " & data.files[ file ].len() );
+			print.greenLine( chr( 9 ) & file & "   " & data.files[ file ].len() );
 
-			for (var issue in data.files[ file ]) {
-				print.text( repeatString( chr(9),2 ) );
+			for( var issue in data.files[ file ] ){
+				print.text( repeatString( chr( 9 ), 2 ) );
 				
-				print.text(issue.severity, issue.color);
+				print.text( issue.severity, issue.color );
 				print.text( ": ");
-				print.boldText(issue.id);
-				print.text(", #issue.message# ");
-				print.cyanLine("[#issue.line#,#issue.column#]");
+				print.boldText( issue.id );
+				print.text( ", #issue.message# " );
+				print.cyanLine( "[#issue.line#,#issue.column#]" );
 			}
 			
 		}
 	}
 
-	
 	/* 
 	 * Displays summary of results in the console
 	 */
 	private void function displaySummary( required data ) {
 
 		print.line();
-		print.greenLine( chr(9) & "Total Files:" & chr(9) & data.counts.totalFiles );
-		print.greenLine( chr(9) & "Total Lines:" & chr(9) & data.counts.totalLines );
-		for (var item in data.counts.countBySeverity ) {
-			print.text(chr(9));
+		print.greenLine( chr( 9 ) & "Total Files:" & chr( 9 ) & data.counts.totalFiles );
+		print.greenLine( chr( 9 ) & "Total Lines:" & chr( 9 ) & data.counts.totalLines );
+		for( var item in data.counts.countBySeverity ){
+			print.text( chr( 9 ) );
 			switch (item.severity) {
 				case "ERROR":
-					print.boldRedText("ERRORS:" & chr(9) & chr(9));
+					print.boldRedText("ERRORS:" & chr( 9 ) & chr( 9 ));
 					break;
 				case "WARNING":
-					print.boldYellowText( "WARNINGS:" & chr(9) );
+					print.boldYellowText( "WARNINGS:" & chr( 9 ) );
 					break;
 				default:
-					print.boldMagentaText( item.severity & ":" & chr(9) & chr(9) );					
+					print.boldMagentaText( item.severity & ":" & chr( 9 ) & chr( 9 ) );					
 			}
 
 			print.line( item.count );
 		}
 		
 	}
-
 
 }
