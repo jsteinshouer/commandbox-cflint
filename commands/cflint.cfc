@@ -26,7 +26,7 @@ component{
 	function init(){
 		variables.workDirectory  = fileSystemUtil.resolvePath( "." );
 		variables.rootPath       = REReplaceNoCase( getDirectoryFromPath( getCurrentTemplatePath() ), "commands(\\|/)", "" );
-		variables.cflintJAR      = rootPath & "lib/cflint-#variables.CFLINT_VERSION#-all/cflint-#variables.CFLINT_VERSION#-all.jar";
+		variables.cflintJAR      = rootPath & "lib/CFLint-#variables.CFLINT_VERSION#-all/CFLint-#variables.CFLINT_VERSION#-all.jar";
 		variables.reportTemplate = "/commandbox-cflint/resources/report.cfm" ;
 
 		return this;
