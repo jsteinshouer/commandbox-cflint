@@ -2,7 +2,7 @@
 
 This is a [CommandBox](https://www.ortussolutions.com/products/commandbox) module for linting your CFML code using [CFLint](https://github.com/cflint/CFLint).
 
-CFLint Version: 1.2.3
+CFLint Version: 1.3.0
 
 ## Install
 
