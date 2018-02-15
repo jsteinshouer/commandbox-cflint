@@ -20,7 +20,7 @@ component{
 	// What cflint version we are using.
 	variables.CFLINT_VERSION = "1.3.0";
 
-	/* 
+	/*
 	* Constructor
 	*/
 	function init(){
@@ -32,10 +32,10 @@ component{
 		return this;
 	}
 
-	/** 
+	/**
 	 * Run the lint command
-	 * 
-	 * @pattern The globbing pattern to lint
+	 *
+	 * @pattern The globbing pattern to lint. You can pass a comma delimmitted list of patterns as well: models/**.cfc,modules_app/**.cfc
 	 * @html Output the report as an HTML file, defaults to `cflint-results.html` unless you use the `fileName` argument
 	 * @text Output the report as a text file, defaults to `cflint-results.txt` unless you use the `fileName` argument
 	 * @json Output the report as raw JSON to a file, defaults to `cflint-results.json` unelss you use the `fileName` argument.
@@ -44,7 +44,7 @@ component{
 	 * @exitOnError By default, if an error is detected on the linting process we will exit of the shell with an error exit code.
 	 */
 	public function run(
-		pattern = "**.cfc|**.cfm", 
+		pattern = "**.cfc|**.cfm",
 		boolean html = false,
 		boolean text = false,
 		boolean json = false,
@@ -52,7 +52,15 @@ component{
 		boolean suppress = false,
 		boolean exitOnError = true
 	) {
-		var fullFilePaths = globber( workDirectory & arguments.pattern ).matches();
+		var fullFilePaths = [];
+		// Split pattern for lists of globbing patterns
+		arguments.pattern
+			.listToArray()
+			.each( function( item ){
+				fullFilePaths.append(
+					globber( workDirectory & item ).matches(), true
+				);
+			} );
 
 		// Remove path from files to shorten the command string. Limit is 8191 characters on windows
 		var files = fullFilePaths.map( function( item ){
@@ -60,13 +68,13 @@ component{
 		} );
 
 		/* Run the report */
-		var reportData = runReport( 
-			files, 
-			arguments.html, 
-			arguments.text, 
+		var reportData = runReport(
+			files,
+			arguments.html,
+			arguments.text,
 			arguments.json,
 			arguments.fileName,
-			arguments.suppress 
+			arguments.suppress
 		);
 
 		/* Make the task fail if an error exists */
@@ -81,7 +89,7 @@ component{
 
 	/**
 	 * Run the report for the following files and output conditions
-	 * 
+	 *
 	 * @files The array of files to lint
 	 * @html Output the report as an HTML file, defaults to `cflint-results.html` unless you use the `fileName` argument
 	 * @text Output the report as a text file, defaults to `cflint-results.txt` unless you use the `fileName` argument
@@ -91,8 +99,8 @@ component{
 	 *
 	 * @return The cflint reportdata struct
 	 */
-	private function runReport( 
-		required files, 
+	private function runReport(
+		required files,
 		boolean html = false,
 		boolean text = false,
 		boolean json = false,
@@ -105,7 +113,7 @@ component{
 
 		// Run Display Procedures
 		displayReport( reportData );
-		
+
 		// Store console output from print buffer
 		var textReport = print.getResult();
 
@@ -120,7 +128,7 @@ component{
 			print.printLine()
 				.greenBoldLine( "==> Report generated at #outputFile#.txt" );
 		}
-		
+
 		// HTML Output
 		if ( arguments.html ) {
 			htmlReport( reportData, outputFile & ".html" );
@@ -138,7 +146,7 @@ component{
 		return reportData;
 	}
 
-	/* 
+	/*
 	 * Get results from cflint and create a data structure we can use to display results
 	 */
 	private struct function getReportData( required array files ) {
@@ -155,7 +163,7 @@ component{
 		data.counts = cflintResults.counts;
 
 		for ( var issue in cflintResults.issues ) {
-			
+
 			for ( var item in issue.locations ) {
 
 				/* I wanted store store results by file */
@@ -195,7 +203,7 @@ component{
 		return data;
 	}
 
-	/* 
+	/*
 	 * Run cflint on files and get result data structure
 	 */
 	private any function runCFLint( required array files ) {
@@ -234,8 +242,8 @@ component{
 		fileWrite( arguments.outputFile, content );
 	}
 
-	
-	/* 
+
+	/*
 	 * Display the report in the console
 	 */
 	private void function displayReport( required data ) {
@@ -250,18 +258,18 @@ component{
 
 			for( var issue in data.files[ file ] ){
 				print.text( repeatString( chr( 9 ), 2 ) );
-				
+
 				print.text( issue.severity, issue.color );
 				print.text( ": ");
 				print.boldText( issue.id );
 				print.text( ", #issue.message# " );
 				print.cyanLine( "[#issue.line#,#issue.column#]" );
 			}
-			
+
 		}
 	}
 
-	/* 
+	/*
 	 * Displays summary of results in the console
 	 */
 	private void function displaySummary( required data ) {
@@ -279,12 +287,12 @@ component{
 					print.boldYellowText( "WARNINGS:" & chr( 9 ) );
 					break;
 				default:
-					print.boldMagentaText( item.severity & ":" & chr( 9 ) & chr( 9 ) );					
+					print.boldMagentaText( item.severity & ":" & chr( 9 ) & chr( 9 ) );
 			}
 
 			print.line( item.count );
 		}
-		
+
 	}
 
 }
