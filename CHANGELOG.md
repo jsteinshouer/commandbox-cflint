@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0
+
+* Fix for case sensitive OSs
+* Added the ability for the `pattern` argument to accept a list of globbing patterns: ex `models/**.cfc,modules_app/**.cfc`
+
 ## 1.0.0
 
 * Upgraded CFLint to latest 1.3.0 release
