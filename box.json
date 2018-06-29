@@ -2,7 +2,7 @@
     "name":"commandbox-cflint",
     "version":"1.2.0",
     "author":"Jason Steinshouer",
-    "location":"jsteinshouer/commandbox-cflint#v1.1.0",
+    "location":"jsteinshouer/commandbox-cflint#v1.2.0",
     "homepage":"https://github.com/jsteinshouer/commandbox-cflint",
     "documentation":"https://github.com/jsteinshouer/commandbox-cflint",
     "repository":{
@@ -32,6 +32,7 @@
         "examples"
     ],
     "contributors":[
-        "Luis Majano <lmajano@ortussolutions.com>"
+        "Luis Majano <lmajano@ortussolutions.com>",
+        "Michael Anderson <micander@gmail.com>"
     ]
 }
