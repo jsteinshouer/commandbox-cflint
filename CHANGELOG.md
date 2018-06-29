@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+
+* Upgraded CFLint to latest 1.4.0 release
+
 ## 1.1.0
 
 * Fix for case sensitive OSs

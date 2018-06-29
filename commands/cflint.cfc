@@ -18,7 +18,7 @@
 component{
 
 	// What cflint version we are using.
-	variables.CFLINT_VERSION = "1.3.0";
+	variables.CFLINT_VERSION = "1.4.0";
 
 	/*
 	* Constructor
