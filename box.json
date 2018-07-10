@@ -1,8 +1,8 @@
 {
     "name":"commandbox-cflint",
-    "version":"1.1.0",
+    "version":"1.2.0",
     "author":"Jason Steinshouer",
-    "location":"jsteinshouer/commandbox-cflint#v1.1.0",
+    "location":"jsteinshouer/commandbox-cflint#v1.2.0",
     "homepage":"https://github.com/jsteinshouer/commandbox-cflint",
     "documentation":"https://github.com/jsteinshouer/commandbox-cflint",
     "repository":{
@@ -15,11 +15,11 @@
     "description":"CommandBox command for running CFLint",
     "type":"commandbox-modules",
     "dependencies":{
-        "CFLint-1.3.0-all":"jar:https://github.com/cflint/CFLint/releases/download/CFLint-1.3.0/CFLint-1.3.0-all.jar"
+        "CFLint-1.4.0-all":"jar:https://github.com/cflint/CFLint/releases/download/CFLint-1.4.0/CFLint-1.4.0-all.jar"
     },
     "devDependencies":{},
     "installPaths":{
-        "CFLint-1.3.0-all":"lib/CFLint-1.3.0-all"
+        "CFLint-1.4.0-all":"lib/CFLint-1.4.0-all"
     },
     "scripts":{
         "postVersion":"package set location='jsteinshouer/commandbox-cflint#v`package version`'",
@@ -32,6 +32,7 @@
         "examples"
     ],
     "contributors":[
-        "Luis Majano <lmajano@ortussolutions.com>"
+        "Luis Majano <lmajano@ortussolutions.com>",
+        "Michael Anderson <micander@gmail.com>"
     ]
 }
