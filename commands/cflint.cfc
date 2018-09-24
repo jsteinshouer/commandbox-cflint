@@ -52,6 +52,7 @@ component{
 		boolean suppress = false,
 		boolean exitOnError = true
 	) {
+		
 		var fullFilePaths = [];
 		// Split pattern for lists of globbing patterns
 		arguments.pattern
@@ -62,14 +63,9 @@ component{
 				);
 			} );
 
-		// Remove path from files to shorten the command string. Limit is 8191 characters on windows
-		var files = fullFilePaths.map( function( item ){
-			return replace( item, workDirectory, "" );
-		} );
-
 		/* Run the report */
 		var reportData = runReport(
-			files,
+			fullFilePaths,
 			arguments.html,
 			arguments.text,
 			arguments.json,
@@ -203,23 +199,25 @@ component{
 		return data;
 	}
 
-	/*
-	 * Run cflint on files and get result data structure
+	/**
+	 * Runs CFLint using the Java API
 	 */
 	private any function runCFLint( required array files ) {
-		/* Currently we output to a file since redirecting output for OS commands currently does not work in CommandBox. This may change in 4.0. */
-		var outputFile = getTempDirectory() & "cflint-output-#createUUID()#.json";
 
-		/* Get JSON data so we can change the structure of the results */
-		var commandString = "!java -jar ""#cflintJAR#"" -logerror -quiet -file ""#files.toList()#"" -json -jsonfile ""#outputFile#""";
-		command( commandString )
-			.inWorkingDirectory( workDirectory )
-			.run();
+		try {
+			var api = createObject( "java", "com.cflint.api.CFLintAPI", 'com.cflint.CFLint' ).init();
+		}
+		catch(any e) {
+			getInstance("BundleService@commandbox-cflint").installBundle( cflintJAR );
+			var api = createObject( "java", "com.cflint.api.CFLintAPI", 'com.cflint.CFLint' ).init();
+		}
+		
+		api.setQuiet( true );
+		api.setLogError( true );
 
-		var output = fileRead( outputFile );
-		fileDelete( outputFile );
+		var result = api.scan( files );
 
-		return deserializeJSON( output );
+		return deserializeJSON( result.getJSON() );
 	}
 
 	/**
@@ -241,7 +239,6 @@ component{
 
 		fileWrite( arguments.outputFile, content );
 	}
-
 
 	/*
 	 * Display the report in the console

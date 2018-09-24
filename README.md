@@ -6,7 +6,7 @@ CFLint Version: 1.4.0
 
 ## Install
 
-First you will need [CommandBox](https://www.ortussolutions.com/products/commandbox) installed. Then you can install the commandbox-cflint module using the following command.
+First you will need [CommandBox](https://www.ortussolutions.com/products/commandbox) version 4 or higher installed. Then you can install the commandbox-cflint module using the following command.
 
 ```
 box install commandbox-cflint

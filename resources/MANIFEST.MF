@@ -1,0 +1,6 @@
+Bundle-Name: CFLint
+Bundle-SymbolicName: com.cflint.CFLint
+Bundle-Description: CFLint
+Bundle-ManifestVersion: 2
+Bundle-Version: 1.4.0
+

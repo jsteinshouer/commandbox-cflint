@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0
+
+* Running CFLint via the Java API instead of via the command line
+* Fixes issue [#4](https://github.com/jsteinshouer/commandbox-cflint/issues/4) where Windows users get error that the command line is too long
+* Bumping the major version because this load CFLint via an OSGi bundle which requires CommandBox 4 or above
+
 ## 1.2.1
 
 * Fixed default pattern parameter since the | no longer works in a glob pattern
