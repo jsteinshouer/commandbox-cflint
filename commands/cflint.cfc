@@ -1,7 +1,7 @@
 /**
 * Lint CFML code using CFLint. Can be run on a single file or aginst a list of files defined by a file globbing pattern.
 * {code:bash}
-* cflint **.cfc|**.cfm
+* cflint **.cfc,**.cfm
 * {code}
 * .
 * Run for all components in the models directory.
@@ -44,7 +44,7 @@ component{
 	 * @exitOnError By default, if an error is detected on the linting process we will exit of the shell with an error exit code.
 	 */
 	public function run(
-		pattern = "**.cfc|**.cfm",
+		pattern = "**.cfc,**.cfm",
 		boolean html = false,
 		boolean text = false,
 		boolean json = false,

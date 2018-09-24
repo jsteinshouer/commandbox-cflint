@@ -14,10 +14,10 @@ box install commandbox-cflint
 
 ## Usage
 
-It Can be run on a single file or aginst a list of files defined by a file globbing pattern
+It can be run on a single file or aginst a list of files defined by a file globbing pattern
 
 ```
-box cflint **.cfc|**.cfm
+box cflint **.cfc,**.cfm
 ```
 
 Run for all components in the models directory.

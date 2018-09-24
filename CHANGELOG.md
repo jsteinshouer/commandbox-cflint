@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1
+
+* Fixed default pattern parameter since the | no longer works in a glob pattern
+
 ## 1.2.0
 
 * Upgraded CFLint to latest 1.4.0 release
