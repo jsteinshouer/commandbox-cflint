@@ -55,7 +55,7 @@ component{
 		var fullFilePaths = [];
 		// Split pattern for lists of globbing patterns
 		arguments.pattern
-			.listToArray()
+			.listToArray( "|" )
 			.each( function( item ){
 				fullFilePaths.append(
 					globber( workDirectory & item ).matches(), true
