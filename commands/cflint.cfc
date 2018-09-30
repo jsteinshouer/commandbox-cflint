@@ -19,15 +19,14 @@ component{
 
 	// What cflint version we are using.
 	variables.CFLINT_VERSION = "1.4.0";
+	variables.REPORT_TEMPLATE = "/commandbox-cflint/resources/report.cfm" ;
 
 	/*
 	* Constructor
 	*/
 	function init(){
-		variables.workDirectory  = fileSystemUtil.resolvePath( "." );
 		variables.rootPath       = REReplaceNoCase( getDirectoryFromPath( getCurrentTemplatePath() ), "commands(\\|/)", "" );
 		variables.cflintJAR      = rootPath & "lib/CFLint-#variables.CFLINT_VERSION#-all/CFLint-#variables.CFLINT_VERSION#-all.jar";
-		variables.reportTemplate = "/commandbox-cflint/resources/report.cfm" ;
 
 		return this;
 	}
@@ -54,6 +53,7 @@ component{
 	) {
 		
 		var fullFilePaths = [];
+		var workDirectory  = fileSystemUtil.resolvePath( "." );
 		// Split pattern for lists of globbing patterns
 		arguments.pattern
 			.listToArray()
@@ -105,7 +105,8 @@ component{
 	){
 		// Run the linter
 		var reportData = getReportData( arguments.files );
-		var outputFile = variables.workDirectory & "/" & arguments.fileName;
+		var workDirectory  = fileSystemUtil.resolvePath( "." );
+		var outputFile = workDirectory & "/" & arguments.fileName;
 
 		// Run Display Procedures
 		displayReport( reportData );
@@ -230,7 +231,7 @@ component{
 		var content 	= "";
 
 		savecontent variable="content" {
-			include reportTemplate;
+			include REPORT_TEMPLATE;
 		}
 
 		if ( fileExists( arguments.outputFile ) ) {

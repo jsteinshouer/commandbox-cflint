@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
+* Fixed issue where output does not write to the current working directory
+
 ## 2.0.0
 
 * Running CFLint via the Java API instead of via the command line
