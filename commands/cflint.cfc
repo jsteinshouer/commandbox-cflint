@@ -14,6 +14,17 @@
 * {code:bash}
 * cflint models/**.cfc --html
 * {code}
+*
+* Hide INFO level results.
+* {code:bash}
+* box cflint reportLevel=WARNING
+* {code}
+*
+* Hide INFO and WARNING level results.
+*
+* {code:bash}
+* box cflint reportLevel=ERROR
+* {code}
 */
 component{
 
@@ -41,6 +52,7 @@ component{
 	 * @fileName The name of the file used for output
 	 * @suppress If passed and using output files, it will suppress the console report. Defaults to false
 	 * @exitOnError By default, if an error is detected on the linting process we will exit of the shell with an error exit code.
+	 * @reportLevel By default this is INFO which means it will display all the found cflint issues. Values are ERROR,WARNING,INFO from showing least to most.
 	 */
 	public function run(
 		pattern = "**.cfc,**.cfm",
@@ -49,9 +61,10 @@ component{
 		boolean json = false,
 		fileName = "cflint-results",
 		boolean suppress = false,
-		boolean exitOnError = true
+		boolean exitOnError = true,
+		string reportLevel = "INFO"
 	) {
-		
+
 		var fullFilePaths = [];
 		var workDirectory  = fileSystemUtil.resolvePath( "." );
 		// Split pattern for lists of globbing patterns
@@ -70,7 +83,8 @@ component{
 			arguments.text,
 			arguments.json,
 			arguments.fileName,
-			arguments.suppress
+			arguments.suppress,
+			arguments.reportLevel
 		);
 
 		/* Make the task fail if an error exists */
@@ -92,6 +106,7 @@ component{
 	 * @json Output the report as raw JSON to a file, defaults to `cflint-results.json` unelss you use the `fileName` argument.
 	 * @fileName The name of the file used for output
 	 * @suppress If passed and using output files, it will suppress the console report. Defaults to false
+	 * @reportLevel By default this is INFO which means it will display all the found cflint issues. Values are ERROR,WARNING,INFO from showing least to most.
 	 *
 	 * @return The cflint reportdata struct
 	 */
@@ -101,10 +116,11 @@ component{
 		boolean text = false,
 		boolean json = false,
 		fileName,
-		boolean suppress=false
+		boolean suppress=false,
+		string reportLevel = "INFO"
 	){
 		// Run the linter
-		var reportData = getReportData( arguments.files );
+		var reportData = getReportData( arguments.files , arguments.reportLevel );
 		var workDirectory  = fileSystemUtil.resolvePath( "." );
 		var outputFile = workDirectory & "/" & arguments.fileName;
 
@@ -146,7 +162,10 @@ component{
 	/*
 	 * Get results from cflint and create a data structure we can use to display results
 	 */
-	private struct function getReportData( required array files ) {
+	private struct function getReportData(
+		required array files,
+		string reportLevel = "INFO"
+	) {
 
 		var data = {
 			"version"     = variables.CFLINT_VERSION,
@@ -156,11 +175,16 @@ component{
 		};
 
 		var cflintResults = runCFLint( arguments.files );
+		var levelsToReport = determineWhatToReport( reportLevel );
 
 		data.counts = cflintResults.counts;
+		var codesToRemove = {};
 
 		for ( var issue in cflintResults.issues ) {
-
+			if( !structKeyExists( levelsToReport , ucase( issue.severity ) ) ) {
+				codesToRemove[issue.id] = true;
+				continue;
+			}
 			for ( var item in issue.locations ) {
 
 				/* I wanted store store results by file */
@@ -197,7 +221,50 @@ component{
 
 		}
 
+		data.counts = filterDataCounts(data.counts, codesToRemove, levelsToReport);
+
 		return data;
+	}
+
+	private struct function filterDataCounts(required any counts, required struct codesToRemove, required struct levelsToReport) {
+		var newCounts = duplicate(counts);
+		for(var key in codesToRemove) {
+			var index = 0;
+			var codes = newCounts["countByCode"];
+			for(var i =1; i <= arrayLen(codes); i++) {
+				if(ucase(codes[i]["code"]) == ucase(key)) {
+					index = i;
+					break;
+				}
+			}
+
+			if(index > 0) {
+				arrayDeleteAt(codes, index);
+			}
+		}
+
+		for(var i = arrayLen(newCounts["countBySeverity"]); i >0; i-- ) {
+			if(!structKeyExists( levelsToReport, newCounts["countBySeverity"][i]["severity"] )) {
+				arrayDeleteAt(newCounts["countBySeverity"], i);
+			}
+		}
+
+		return newCounts;
+	}
+
+	private struct function determineWhatToReport(required string reportLevel) {
+		switch(reportLevel) {
+			case "WARNING":
+				return {"WARNING":true,"ERROR":true};
+				break;
+			case "ERROR":
+				return {"ERROR":true};
+				break;
+			case "INFO":
+			default:
+				return {"INFO":true, "WARNING":true, "ERROR":true};
+				break;
+		}
 	}
 
 	/**
@@ -212,7 +279,7 @@ component{
 			getInstance("BundleService@commandbox-cflint").installBundle( cflintJAR );
 			var api = createObject( "java", "com.cflint.api.CFLintAPI", 'com.cflint.CFLint' ).init();
 		}
-		
+
 		api.setQuiet( true );
 		api.setLogError( true );
 

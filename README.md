@@ -14,7 +14,7 @@ box install commandbox-cflint
 
 ## Usage
 
-It can be run on a single file or aginst a list of files defined by a file globbing pattern
+It can be run on a single file or against a list of files defined by a file globing pattern
 
 ```
 box cflint **.cfc,**.cfm
@@ -30,6 +30,18 @@ Generate html report instead of console output.
 
 ```
 box cflint models/**.cfc --html
+```
+
+Hide INFO level results.
+
+```
+box cflint reportLevel=WARNING
+```
+
+Hide INFO and WARNING level results.
+
+```
+box cflint reportLevel=ERROR
 ```
 
 ## Example Output
