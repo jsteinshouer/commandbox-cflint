@@ -15,11 +15,11 @@
     "description":"CommandBox command for running CFLint",
     "type":"commandbox-modules",
     "dependencies":{
-        "CFLint-1.4.0-all":"jar:https://github.com/cflint/CFLint/releases/download/CFLint-1.4.0/CFLint-1.4.0-all.jar"
+        "CFLint-1.4.1-all":"jar:https://github.com/cflint/CFLint/releases/download/CFLint-1.4.1/CFLint-1.4.1-all.jar"
     },
     "devDependencies":{},
     "installPaths":{
-        "CFLint-1.4.0-all":"lib/CFLint-1.4.0-all"
+        "CFLint-1.4.1-all":"lib/CFLint-1.4.1-all"
     },
     "scripts":{
         "postVersion":"package set location='jsteinshouer/commandbox-cflint#v`package version`'",

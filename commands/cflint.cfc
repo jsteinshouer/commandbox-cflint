@@ -29,7 +29,7 @@
 component{
 
 	// What cflint version we are using.
-	variables.CFLINT_VERSION = "1.4.0";
+	variables.CFLINT_VERSION = "1.4.1";
 	variables.REPORT_TEMPLATE = "/commandbox-cflint/resources/report.cfm" ;
 
 	/*
