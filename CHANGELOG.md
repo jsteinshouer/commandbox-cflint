@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.0
+## 2.1.0
 
 * Added ability to filter out levels of errors
 * Upgraded CFLint to latest 1.4.1 release
