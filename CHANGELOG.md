@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0
+
+* Added ability to filter out levels of errors
+* Upgraded CFLint to latest 1.4.1 release
+
 ## 2.0.1
 
 * Fixed issue where output does not write to the current working directory
