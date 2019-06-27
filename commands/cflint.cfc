@@ -49,6 +49,7 @@ component{
 	 * @html Output the report as an HTML file, defaults to `cflint-results.html` unless you use the `fileName` argument
 	 * @text Output the report as a text file, defaults to `cflint-results.txt` unless you use the `fileName` argument
 	 * @json Output the report as raw JSON to a file, defaults to `cflint-results.json` unelss you use the `fileName` argument.
+	 * @junit Output the report as JUnit XML format to a file, defaults to `cflint-results.xml` unelss you use the `fileName` argument.
 	 * @fileName The name of the file used for output
 	 * @suppress If passed and using output files, it will suppress the console report. Defaults to false
 	 * @exitOnError By default, if an error is detected on the linting process we will exit of the shell with an error exit code.
@@ -59,6 +60,7 @@ component{
 		boolean html = false,
 		boolean text = false,
 		boolean json = false,
+		boolean junit = false,
 		fileName = "cflint-results",
 		boolean suppress = false,
 		boolean exitOnError = true,
@@ -82,6 +84,7 @@ component{
 			arguments.html,
 			arguments.text,
 			arguments.json,
+			arguments.junit,
 			arguments.fileName,
 			arguments.suppress,
 			arguments.reportLevel
@@ -115,12 +118,15 @@ component{
 		boolean html = false,
 		boolean text = false,
 		boolean json = false,
+		boolean junit = false,
 		fileName,
 		boolean suppress=false,
 		string reportLevel = "INFO"
 	){
 		// Run the linter
+		var timer1 = getTickCount();
 		var reportData = getReportData( arguments.files , arguments.reportLevel );
+		var timer2 = getTickCount();
 		var workDirectory  = fileSystemUtil.resolvePath( "." );
 		var outputFile = workDirectory & "/" & arguments.fileName;
 
@@ -154,6 +160,21 @@ component{
 			fileWrite( outputFile & ".json", serializeJSON( reportData ) );
 			print.printLine()
 				.greenBoldLine( "==> Report generated at #outputFile#.json" );
+		}
+
+		// JUnit Output
+		if ( arguments.junit ) {
+			var totalTime = timer2 - timer1;
+			fileWrite( 
+				outputFile & ".xml", 
+				getInstance( "JUnitReporter@commandbox-cflint" ).createReport( 
+					arguments.files, 
+					reportData, 
+					totalTime 
+				)
+			);
+			print.printLine()
+				.greenBoldLine( "==> Report generated at #outputFile#.xml" );
 		}
 
 		return reportData;
