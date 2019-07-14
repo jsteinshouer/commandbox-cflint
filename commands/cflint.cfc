@@ -122,7 +122,7 @@ component{
 		// Run the linter
 		var reportData = getReportData( arguments.files , arguments.reportLevel );
 		var workDirectory  = fileSystemUtil.resolvePath( "." );
-		var outputFile = workDirectory & "/" & arguments.fileName;
+		var outputFile = workDirectory & "/" & replace(arguments.fileName, ".xml", "" );
 
 		// Run Display Procedures
 		displayReport( reportData );
