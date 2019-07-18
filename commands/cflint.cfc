@@ -128,7 +128,7 @@ component{
 		var reportData = getReportData( arguments.files , arguments.reportLevel );
 		var timer2 = getTickCount();
 		var workDirectory  = fileSystemUtil.resolvePath( "." );
-		var outputFile = workDirectory & "/" & arguments.fileName;
+		var outputFile = workDirectory & "/" & reReplaceNoCase( arguments.filename, "\.xml|\.txt|\.html|\.json",  "" );
 
 		// Run Display Procedures
 		displayReport( reportData );
