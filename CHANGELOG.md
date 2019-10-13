@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0
+
+* Added JUnit report option
+
 ## 2.1.1
 
 * Forgot to update the README with new CFLint version

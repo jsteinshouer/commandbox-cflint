@@ -25,6 +25,12 @@
 * {code:bash}
 * box cflint reportLevel=ERROR
 * {code}
+*
+* Generate JUnit report.
+* .
+* {code:bash}
+* cflint models/**.cfc --junit
+* {code}
 */
 component{
 
