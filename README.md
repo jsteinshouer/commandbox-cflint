@@ -44,6 +44,12 @@ Hide INFO and WARNING level results.
 box cflint reportLevel=ERROR
 ```
 
+Generate a JUnit report
+
+```
+box cflint models/**.cfc --junit
+```
+
 ## Example Output
 
 #### Example Console Output
