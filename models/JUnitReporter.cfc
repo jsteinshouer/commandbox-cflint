@@ -35,7 +35,7 @@ component output="false" singleton="true" {
 			var classname = replace( relativePath, relativePath.right(4), "" );
 			var hasErrors = structKeyExists( results.files, fullPath );
 			var errorCount = hasErrors ? results.files[ fullPath ].len() : 0;
-			output &= '<testsuite package="#package#" time="0" tests="0" errors="#errorCount#" name="#relativePath#">';
+			output &= '<testsuite package="#package#" time="0" tests="#errorCount#" errors="#errorCount#" name="#relativePath#">';
 
 			if ( hasErrors ) {
 				for( var issue in results.files[ fullPath ] ){
