@@ -1,21 +1,24 @@
 component {
 
-	this.name = "commandbox-cflint";
+	this.name      = "commandbox-cflint";
 	this.cfmapping = "commandbox-cflint";
 
-	function configure() {
-
+	function configure(){
+		settings = { cflint_version : "1.5.0" };
 	}
 
 	function onLoad(){
+		var bundleService = wirebox.getInstance( "BundleService@commandbox-cflint" );
+		var jarFile       = modulePath & "/lib/CFLint-#settings.cflint_version#-all/CFLint-#settings.cflint_version#-all.jar";
 
-		var bundleService = wirebox.getInstance("BundleService@commandbox-cflint");
-		var jarFile = modulePath & "/lib/CFLint-1.4.1-all/CFLint-1.4.1-all.jar";
-
-		if ( !bundleService.isBundleInstalled( "com.cflint.CFLint", "1.4.1" ) ) {
+		if (
+			!bundleService.isBundleInstalled(
+				"com.cflint.CFLint",
+				settings.cflint_version
+			)
+		) {
 			bundleService.installBundle( jarFile );
 		}
-		
 	}
 
 }

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.3.0
+
+### Added
+
+* Upgraded cflint jar to latest release of v1.5.0
+* Added module setting for version loading
+* Added formatting rules and script runners: `format, format:check, format:watch`
+* Added editor configs for multi-os editing
+* Added markdown lint rc
+
 ## 2.2.0
 
 * Added JUnit report option
