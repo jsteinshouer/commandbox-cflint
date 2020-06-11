@@ -1,8 +1,8 @@
 {
     "name":"commandbox-cflint",
-    "version":"2.2.0",
+    "version":"2.3.0",
     "author":"Jason Steinshouer",
-    "location":"jsteinshouer/commandbox-cflint#v2.2.0",
+    "location":"forgeboxStorage",
     "homepage":"https://github.com/jsteinshouer/commandbox-cflint",
     "documentation":"https://github.com/jsteinshouer/commandbox-cflint",
     "repository":{
@@ -15,16 +15,18 @@
     "description":"CommandBox command for running CFLint",
     "type":"commandbox-modules",
     "dependencies":{
-        "CFLint-1.4.1-all":"jar:https://github.com/cflint/CFLint/releases/download/CFLint-1.4.1/CFLint-1.4.1-all.jar"
+        "CFLint-1.5.0-all":"jar:https://github.com/cflint/CFLint/releases/download/CFLint-1.5.0/CFLint-1.5.0-all.jar"
     },
     "devDependencies":{},
     "installPaths":{
-        "CFLint-1.4.1-all":"lib/CFLint-1.4.1-all"
+        "CFLint-1.5.0-all":"lib/CFLint-1.5.0-all/"
     },
     "scripts":{
-        "postVersion":"package set location='jsteinshouer/commandbox-cflint#v`package version`'",
         "onRelease":"publish",
-        "postPublish":"!git push && !git push --tags"
+        "postPublish":"!git push && !git push --tags",
+        "format":"cfformat run commands,models,*.cfc",
+        "format:check":"cfformat check commands,models,*.cfc",
+        "format:watch":"cfformat watch commands,models,*.cfc ./.cfformat.json"
     },
     "ignore":[
         "**/.*",

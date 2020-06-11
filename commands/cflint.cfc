@@ -1,49 +1,53 @@
 /**
-* Lint CFML code using CFLint. Can be run on a single file or aginst a list of files defined by a file globbing pattern.
-* {code:bash}
-* cflint **.cfc,**.cfm
-* {code}
-* .
-* Run for all components in the models directory.
-* {code:bash}
-* cflint models/**.cfc
-* {code}
-* .
-* Generate html report instead of console output.
-* .
-* {code:bash}
-* cflint models/**.cfc --html
-* {code}
-*
-* Hide INFO level results.
-* {code:bash}
-* box cflint reportLevel=WARNING
-* {code}
-*
-* Hide INFO and WARNING level results.
-*
-* {code:bash}
-* box cflint reportLevel=ERROR
-* {code}
-*
-* Generate JUnit report.
-* .
-* {code:bash}
-* cflint models/**.cfc --junit
-* {code}
-*/
-component{
+ * Lint CFML code using CFLint. Can be run on a single file or aginst a list of files defined by a file globbing pattern.
+ * {code:bash}
+ * cflint **.cfc,**.cfm
+ * {code}
+ * .
+ * Run for all components in the models directory.
+ * {code:bash}
+ * cflint models/**.cfc
+ * {code}
+ * .
+ * Generate html report instead of console output.
+ * .
+ * {code:bash}
+ * cflint models/**.cfc --html
+ * {code}
+ *
+ * Hide INFO level results.
+ * {code:bash}
+ * box cflint reportLevel=WARNING
+ * {code}
+ *
+ * Hide INFO and WARNING level results.
+ *
+ * {code:bash}
+ * box cflint reportLevel=ERROR
+ * {code}
+ *
+ * Generate JUnit report.
+ * .
+ * {code:bash}
+ * cflint models/**.cfc --junit
+ * {code}
+ */
+component {
 
 	// What cflint version we are using.
-	variables.CFLINT_VERSION = "1.4.1";
-	variables.REPORT_TEMPLATE = "/commandbox-cflint/resources/report.cfm" ;
+	variables.CFLINT_VERSION  = "1.5.0";
+	variables.REPORT_TEMPLATE = "/commandbox-cflint/resources/report.cfm";
 
 	/*
-	* Constructor
-	*/
+	 * Constructor
+	 */
 	function init(){
-		variables.rootPath       = REReplaceNoCase( getDirectoryFromPath( getCurrentTemplatePath() ), "commands(\\|/)", "" );
-		variables.cflintJAR      = rootPath & "lib/CFLint-#variables.CFLINT_VERSION#-all/CFLint-#variables.CFLINT_VERSION#-all.jar";
+		variables.rootPath = reReplaceNoCase(
+			getDirectoryFromPath( getCurrentTemplatePath() ),
+			"commands(\\|/)",
+			""
+		);
+		variables.cflintJAR = rootPath & "lib/CFLint-#variables.CFLINT_VERSION#-all/CFLint-#variables.CFLINT_VERSION#-all.jar";
 
 		return this;
 	}
@@ -62,25 +66,25 @@ component{
 	 * @reportLevel By default this is INFO which means it will display all the found cflint issues. Values are ERROR,WARNING,INFO from showing least to most.
 	 */
 	public function run(
-		pattern = "**.cfc,**.cfm",
-		boolean html = false,
-		boolean text = false,
-		boolean json = false,
-		boolean junit = false,
-		fileName = "cflint-results",
-		boolean suppress = false,
+		pattern             = "**.cfc,**.cfm",
+		boolean html        = false,
+		boolean text        = false,
+		boolean json        = false,
+		boolean junit       = false,
+		fileName            = "cflint-results",
+		boolean suppress    = false,
 		boolean exitOnError = true,
-		string reportLevel = "INFO"
-	) {
-
+		string reportLevel  = "INFO"
+	){
 		var fullFilePaths = [];
-		var workDirectory  = fileSystemUtil.resolvePath( "." );
+		var workDirectory = fileSystemUtil.resolvePath( "." );
 		// Split pattern for lists of globbing patterns
 		arguments.pattern
 			.listToArray()
 			.each( function( item ){
 				fullFilePaths.append(
-					globber( workDirectory & item ).matches(), true
+					globber( workDirectory & item ).matches(),
+					true
 				);
 			} );
 
@@ -121,20 +125,27 @@ component{
 	 */
 	private function runReport(
 		required files,
-		boolean html = false,
-		boolean text = false,
-		boolean json = false,
+		boolean html  = false,
+		boolean text  = false,
+		boolean json  = false,
 		boolean junit = false,
 		fileName,
-		boolean suppress=false,
+		boolean suppress   = false,
 		string reportLevel = "INFO"
 	){
 		// Run the linter
-		var timer1 = getTickCount();
-		var reportData = getReportData( arguments.files , arguments.reportLevel );
-		var timer2 = getTickCount();
-		var workDirectory  = fileSystemUtil.resolvePath( "." );
-		var outputFile = workDirectory & "/" & reReplaceNoCase( arguments.filename, "\.xml|\.txt|\.html|\.json",  "" );
+		var timer1     = getTickCount();
+		var reportData = getReportData(
+			arguments.files,
+			arguments.reportLevel
+		);
+		var timer2        = getTickCount();
+		var workDirectory = fileSystemUtil.resolvePath( "." );
+		var outputFile    = workDirectory & "/" & reReplaceNoCase(
+			arguments.filename,
+			"\.xml|\.txt|\.html|\.json",
+			""
+		);
 
 		// Run Display Procedures
 		displayReport( reportData );
@@ -143,44 +154,43 @@ component{
 		var textReport = print.getResult();
 
 		// Supress Console Output by clearing the output buffer
-		if( arguments.suppress ){
+		if ( arguments.suppress ) {
 			print.clear();
 		}
 
 		// Text Output
-		if( arguments.text ){
+		if ( arguments.text ) {
 			fileWrite( outputFile & ".txt", textReport );
-			print.printLine()
-				.greenBoldLine( "==> Report generated at #outputFile#.txt" );
+			print.printLine().greenBoldLine( "==> Report generated at #outputFile#.txt" );
 		}
 
 		// HTML Output
 		if ( arguments.html ) {
 			htmlReport( reportData, outputFile & ".html" );
-			print.printLine()
-				.greenBoldLine( "==> Report generated at #outputFile#.html" );
+			print.printLine().greenBoldLine( "==> Report generated at #outputFile#.html" );
 		}
 
 		// JSON Output
-		if( arguments.json ){
-			fileWrite( outputFile & ".json", serializeJSON( reportData ) );
-			print.printLine()
-				.greenBoldLine( "==> Report generated at #outputFile#.json" );
+		if ( arguments.json ) {
+			fileWrite(
+				outputFile & ".json",
+				serializeJSON( reportData )
+			);
+			print.printLine().greenBoldLine( "==> Report generated at #outputFile#.json" );
 		}
 
 		// JUnit Output
 		if ( arguments.junit ) {
 			var totalTime = timer2 - timer1;
-			fileWrite( 
-				outputFile & ".xml", 
-				getInstance( "JUnitReporter@commandbox-cflint" ).createReport( 
-					arguments.files, 
-					reportData, 
-					totalTime 
+			fileWrite(
+				outputFile & ".xml",
+				getInstance( "JUnitReporter@commandbox-cflint" ).createReport(
+					arguments.files,
+					reportData,
+					totalTime
 				)
 			);
-			print.printLine()
-				.greenBoldLine( "==> Report generated at #outputFile#.xml" );
+			print.printLine().greenBoldLine( "==> Report generated at #outputFile#.xml" );
 		}
 
 		return reportData;
@@ -192,28 +202,31 @@ component{
 	private struct function getReportData(
 		required array files,
 		string reportLevel = "INFO"
-	) {
-
+	){
 		var data = {
-			"version"     = variables.CFLINT_VERSION,
-			"timestamp"   = now(),
-			"files"       = {},
-			"errorExists" = false
+			"version"     : variables.CFLINT_VERSION,
+			"timestamp"   : now(),
+			"files"       : {},
+			"errorExists" : false
 		};
 
-		var cflintResults = runCFLint( arguments.files );
+		var cflintResults  = runCFLint( arguments.files );
 		var levelsToReport = determineWhatToReport( reportLevel );
 
-		data.counts = cflintResults.counts;
+		data.counts       = cflintResults.counts;
 		var codesToRemove = {};
 
 		for ( var issue in cflintResults.issues ) {
-			if( !structKeyExists( levelsToReport , ucase( issue.severity ) ) ) {
-				codesToRemove[issue.id] = true;
+			if (
+				!structKeyExists(
+					levelsToReport,
+					uCase( issue.severity )
+				)
+			) {
+				codesToRemove[ issue.id ] = true;
 				continue;
 			}
 			for ( var item in issue.locations ) {
-
 				/* I wanted store store results by file */
 				if ( !structKeyExists( data.files, item.file ) ) {
 					data.files[ item.file ] = [];
@@ -221,18 +234,18 @@ component{
 
 				/* Combine issue data into a single structure */
 				var newIssue = {
-					severity = issue.severity,
-					id = issue.id,
-					message = item.message,
-					line = item.line,
-					column = item.column,
-					expression = item.expression
+					severity   : issue.severity,
+					id         : issue.id,
+					message    : item.message,
+					line       : item.line,
+					column     : item.column,
+					expression : item.expression
 				};
 
 				/* What color to use in console output? */
 				switch ( issue.severity ) {
 					case "ERROR":
-						newIssue.color = "red";
+						newIssue.color   = "red";
 						data.errorExists = true;
 						break;
 					case "WARNING":
@@ -243,53 +256,68 @@ component{
 				}
 
 				data.files[ item.file ].append( newIssue );
-
 			}
-
 		}
 
-		data.counts = filterDataCounts(data.counts, codesToRemove, levelsToReport);
+		data.counts = filterDataCounts(
+			data.counts,
+			codesToRemove,
+			levelsToReport
+		);
 
 		return data;
 	}
 
-	private struct function filterDataCounts(required any counts, required struct codesToRemove, required struct levelsToReport) {
-		var newCounts = duplicate(counts);
-		for(var key in codesToRemove) {
+	private struct function filterDataCounts(
+		required any counts,
+		required struct codesToRemove,
+		required struct levelsToReport
+	){
+		var newCounts = duplicate( counts );
+		for ( var key in codesToRemove ) {
 			var index = 0;
-			var codes = newCounts["countByCode"];
-			for(var i =1; i <= arrayLen(codes); i++) {
-				if(ucase(codes[i]["code"]) == ucase(key)) {
+			var codes = newCounts[ "countByCode" ];
+			for ( var i = 1; i <= arrayLen( codes ); i++ ) {
+				if ( uCase( codes[ i ][ "code" ] ) == uCase( key ) ) {
 					index = i;
 					break;
 				}
 			}
 
-			if(index > 0) {
-				arrayDeleteAt(codes, index);
+			if ( index > 0 ) {
+				arrayDeleteAt( codes, index );
 			}
 		}
 
-		for(var i = arrayLen(newCounts["countBySeverity"]); i >0; i-- ) {
-			if(!structKeyExists( levelsToReport, newCounts["countBySeverity"][i]["severity"] )) {
-				arrayDeleteAt(newCounts["countBySeverity"], i);
+		for ( var i = arrayLen( newCounts[ "countBySeverity" ] ); i > 0; i-- ) {
+			if (
+				!structKeyExists(
+					levelsToReport,
+					newCounts[ "countBySeverity" ][ i ][ "severity" ]
+				)
+			) {
+				arrayDeleteAt( newCounts[ "countBySeverity" ], i );
 			}
 		}
 
 		return newCounts;
 	}
 
-	private struct function determineWhatToReport(required string reportLevel) {
-		switch(reportLevel) {
+	private struct function determineWhatToReport( required string reportLevel ){
+		switch ( reportLevel ) {
 			case "WARNING":
-				return {"WARNING":true,"ERROR":true};
+				return { "WARNING" : true, "ERROR" : true };
 				break;
 			case "ERROR":
-				return {"ERROR":true};
+				return { "ERROR" : true };
 				break;
 			case "INFO":
 			default:
-				return {"INFO":true, "WARNING":true, "ERROR":true};
+				return {
+					"INFO"    : true,
+					"WARNING" : true,
+					"ERROR"   : true
+				};
 				break;
 		}
 	}
@@ -297,14 +325,20 @@ component{
 	/**
 	 * Runs CFLint using the Java API
 	 */
-	private any function runCFLint( required array files ) {
-
+	private any function runCFLint( required array files ){
 		try {
-			var api = createObject( "java", "com.cflint.api.CFLintAPI", 'com.cflint.CFLint' ).init();
-		}
-		catch(any e) {
-			getInstance("BundleService@commandbox-cflint").installBundle( cflintJAR );
-			var api = createObject( "java", "com.cflint.api.CFLintAPI", 'com.cflint.CFLint' ).init();
+			var api = createObject(
+				"java",
+				"com.cflint.api.CFLintAPI",
+				"com.cflint.CFLint"
+			).init();
+		} catch ( any e ) {
+			getInstance( "BundleService@commandbox-cflint" ).installBundle( cflintJAR );
+			var api = createObject(
+				"java",
+				"com.cflint.api.CFLintAPI",
+				"com.cflint.CFLint"
+			).init();
 		}
 
 		api.setQuiet( true );
@@ -321,8 +355,8 @@ component{
 	 * @data The data results
 	 * @outputFile The output file location
 	 */
-	private string function htmlReport( required data, required outputFile ) {
-		var content 	= "";
+	private string function htmlReport( required data, required outputFile ){
+		var content = "";
 
 		savecontent variable="content" {
 			include REPORT_TEMPLATE;
@@ -338,42 +372,38 @@ component{
 	/*
 	 * Display the report in the console
 	 */
-	private void function displayReport( required data ) {
-
+	private void function displayReport( required data ){
 		displaySummary( data );
 
 		print.line();
 
 		for ( var file in data.files ) {
-
 			print.greenLine( chr( 9 ) & file & "   " & data.files[ file ].len() );
 
-			for( var issue in data.files[ file ] ){
+			for ( var issue in data.files[ file ] ) {
 				print.text( repeatString( chr( 9 ), 2 ) );
 
 				print.text( issue.severity, issue.color );
-				print.text( ": ");
+				print.text( ": " );
 				print.boldText( issue.id );
 				print.text( ", #issue.message# " );
 				print.cyanLine( "[#issue.line#,#issue.column#]" );
 			}
-
 		}
 	}
 
 	/*
 	 * Displays summary of results in the console
 	 */
-	private void function displaySummary( required data ) {
-
+	private void function displaySummary( required data ){
 		print.line();
 		print.greenLine( chr( 9 ) & "Total Files:" & chr( 9 ) & data.counts.totalFiles );
 		print.greenLine( chr( 9 ) & "Total Lines:" & chr( 9 ) & data.counts.totalLines );
-		for( var item in data.counts.countBySeverity ){
+		for ( var item in data.counts.countBySeverity ) {
 			print.text( chr( 9 ) );
-			switch (item.severity) {
+			switch ( item.severity ) {
 				case "ERROR":
-					print.boldRedText("ERRORS:" & chr( 9 ) & chr( 9 ));
+					print.boldRedText( "ERRORS:" & chr( 9 ) & chr( 9 ) );
 					break;
 				case "WARNING":
 					print.boldYellowText( "WARNINGS:" & chr( 9 ) );
@@ -384,7 +414,6 @@ component{
 
 			print.line( item.count );
 		}
-
 	}
 
 }
