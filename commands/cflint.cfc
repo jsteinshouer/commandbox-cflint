@@ -74,16 +74,21 @@ component {
 		fileName            = "cflint-results",
 		boolean suppress    = false,
 		boolean exitOnError = true,
-		string reportLevel  = "INFO"
+		string reportLevel  = "INFO",
+		excludePattern		= ""
 	){
 		var fullFilePaths = [];
 		var workDirectory = fileSystemUtil.resolvePath( "." );
+		var excludePattern = arguments.excludePattern;
+
 		// Split pattern for lists of globbing patterns
 		arguments.pattern
 			.listToArray()
 			.each( function( item ){
 				fullFilePaths.append(
-					globber( workDirectory & item ).matches(),
+					globber( workDirectory & item )
+						.setExcludePattern( listToArray( excludePattern ).map( ( pattern ) => workDirectory & pattern ) )
+						.matches(),
 					true
 				);
 			} );
