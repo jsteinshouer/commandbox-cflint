@@ -55,7 +55,7 @@ component {
 	/**
 	 * Run the lint command
 	 *
-	 * @pattern The globbing pattern to lint. You can pass a comma delimmitted list of patterns as well: models/**.cfc,modules_app/**.cfc
+	 * @pattern The globbing pattern to lint. You can pass a comma delimited list of patterns as well: models/**.cfc,modules_app/**.cfc
 	 * @html Output the report as an HTML file, defaults to `cflint-results.html` unless you use the `fileName` argument
 	 * @text Output the report as a text file, defaults to `cflint-results.txt` unless you use the `fileName` argument
 	 * @json Output the report as raw JSON to a file, defaults to `cflint-results.json` unelss you use the `fileName` argument.
