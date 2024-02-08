@@ -64,6 +64,7 @@ component {
 	 * @suppress If passed and using output files, it will suppress the console report. Defaults to false
 	 * @exitOnError By default, if an error is detected on the linting process we will exit of the shell with an error exit code.
 	 * @reportLevel By default this is INFO which means it will display all the found cflint issues. Values are ERROR,WARNING,INFO from showing least to most.
+	 * @excludePattern A comma delimited list of globbing patterns of files to exclude from linting
 	 */
 	public function run(
 		pattern             = "**.cfc,**.cfm",
