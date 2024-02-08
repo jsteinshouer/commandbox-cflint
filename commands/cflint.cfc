@@ -211,13 +211,26 @@ component {
 		var data = {
 			"version"     : variables.CFLINT_VERSION,
 			"timestamp"   : now(),
-			"files"       : {},
+			"files"       : structNew("ordered"),
 			"errorExists" : false
 		};
 
 		var cflintResults  = runCFLint( arguments.files );
 		var levelsToReport = determineWhatToReport( reportLevel );
-
+		var fileNames = [];
+		fileNames.addAll(
+			//Using HashSet to dedup
+			createObject("java", "java.util.HashSet").init(
+				cflintResults.issues
+					.map( (issue) => issue.locations )
+					.map( (location) => location[1].file )
+			)
+		);
+		fileNames.sort("textnocase");
+		//Adding keys in alphabetical order
+		for ( var file in fileNames ){
+			data.files[ file ] = [];
+		}
 		data.counts       = cflintResults.counts;
 		var codesToRemove = {};
 
@@ -232,10 +245,6 @@ component {
 				continue;
 			}
 			for ( var item in issue.locations ) {
-				/* I wanted store store results by file */
-				if ( !structKeyExists( data.files, item.file ) ) {
-					data.files[ item.file ] = [];
-				}
 
 				/* Combine issue data into a single structure */
 				var newIssue = {
