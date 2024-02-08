@@ -165,7 +165,7 @@ component {
 
 		// Text Output
 		if ( arguments.text ) {
-			fileWrite( outputFile & ".txt", textReport );
+			fileWrite( outputFile & ".txt", print.unansi(textReport) );
 			print.printLine().greenBoldLine( "==> Report generated at #outputFile#.txt" );
 		}
 
