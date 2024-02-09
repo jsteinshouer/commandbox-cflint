@@ -55,7 +55,7 @@ component {
 	/**
 	 * Run the lint command
 	 *
-	 * @pattern The globbing pattern to lint. You can pass a comma delimmitted list of patterns as well: models/**.cfc,modules_app/**.cfc
+	 * @pattern The globbing pattern to lint. You can pass a comma delimited list of patterns as well: models/**.cfc,modules_app/**.cfc
 	 * @html Output the report as an HTML file, defaults to `cflint-results.html` unless you use the `fileName` argument
 	 * @text Output the report as a text file, defaults to `cflint-results.txt` unless you use the `fileName` argument
 	 * @json Output the report as raw JSON to a file, defaults to `cflint-results.json` unelss you use the `fileName` argument.
@@ -64,6 +64,7 @@ component {
 	 * @suppress If passed and using output files, it will suppress the console report. Defaults to false
 	 * @exitOnError By default, if an error is detected on the linting process we will exit of the shell with an error exit code.
 	 * @reportLevel By default this is INFO which means it will display all the found cflint issues. Values are ERROR,WARNING,INFO from showing least to most.
+	 * @excludePattern A comma delimited list of globbing patterns of files to exclude from linting
 	 */
 	public function run(
 		pattern             = "**.cfc,**.cfm",
@@ -74,16 +75,21 @@ component {
 		fileName            = "cflint-results",
 		boolean suppress    = false,
 		boolean exitOnError = true,
-		string reportLevel  = "INFO"
+		string reportLevel  = "INFO",
+		excludePattern		= ""
 	){
 		var fullFilePaths = [];
 		var workDirectory = fileSystemUtil.resolvePath( "." );
+		var excludePattern = arguments.excludePattern;
+
 		// Split pattern for lists of globbing patterns
 		arguments.pattern
 			.listToArray()
 			.each( function( item ){
 				fullFilePaths.append(
-					globber( workDirectory & item ).matches(),
+					globber( workDirectory & item )
+						.setExcludePattern( listToArray( excludePattern ).map( ( pattern ) => workDirectory & pattern ) )
+						.matches(),
 					true
 				);
 			} );
@@ -160,7 +166,7 @@ component {
 
 		// Text Output
 		if ( arguments.text ) {
-			fileWrite( outputFile & ".txt", textReport );
+			fileWrite( outputFile & ".txt", print.unansi(textReport) );
 			print.printLine().greenBoldLine( "==> Report generated at #outputFile#.txt" );
 		}
 
@@ -206,13 +212,26 @@ component {
 		var data = {
 			"version"     : variables.CFLINT_VERSION,
 			"timestamp"   : now(),
-			"files"       : {},
+			"files"       : structNew("ordered"),
 			"errorExists" : false
 		};
 
 		var cflintResults  = runCFLint( arguments.files );
 		var levelsToReport = determineWhatToReport( reportLevel );
-
+		var fileNames = [];
+		fileNames.addAll(
+			//Using HashSet to dedup
+			createObject("java", "java.util.HashSet").init(
+				cflintResults.issues
+					.map( (issue) => issue.locations )
+					.map( (location) => location[1].file )
+			)
+		);
+		fileNames.sort("textnocase");
+		//Adding keys in alphabetical order
+		for ( var file in fileNames ){
+			data.files[ file ] = [];
+		}
 		data.counts       = cflintResults.counts;
 		var codesToRemove = {};
 
@@ -227,10 +246,6 @@ component {
 				continue;
 			}
 			for ( var item in issue.locations ) {
-				/* I wanted store store results by file */
-				if ( !structKeyExists( data.files, item.file ) ) {
-					data.files[ item.file ] = [];
-				}
 
 				/* Combine issue data into a single structure */
 				var newIssue = {

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.4.0
+
+- feature: Added excludePattern argument
+- feature: Sort results by filename
+- fix: Remove ANSI formmating from text file results
+- fix: Typo in help output #13
+
 ## 2.3.0
 
 ### Added
